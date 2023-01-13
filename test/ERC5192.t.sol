@@ -20,15 +20,23 @@ contract NTT is ERC5192 {
 
 contract ERC5192Test is Test, ERC721Holder {
   NTT lockedToken;
+  NTT unlockedToken;
 
   function setUp() public {
     string memory name = "Name";
     string memory symbol = "Symbol";
-    bool locked = true;
-    lockedToken = new NTT(name, symbol, locked);
+    lockedToken = new NTT(name, symbol, true);
+    unlockedToken = new NTT(name, symbol, false);
   }
 
-  function testCallingLocked() public {
+  function testCallingLockedOnUnlocked() public {
+    address to = address(this);
+    uint256 tokenId = 0;
+    unlockedToken.safeMint(to, tokenId);
+    assertFalse(unlockedToken.locked(tokenId));
+  }
+
+  function testCallingLockedOnLocked() public {
     address to = address(this);
     uint256 tokenId = 0;
     lockedToken.safeMint(to, tokenId);
@@ -37,15 +45,39 @@ contract ERC5192Test is Test, ERC721Holder {
 
   function testIERC5192() public {
     assertTrue(lockedToken.supportsInterface(type(IERC5192).interfaceId));
+    assertTrue(unlockedToken.supportsInterface(type(IERC5192).interfaceId));
   }
 
   function testLockedThrowingOnNonExistentTokenId() public {
     vm.expectRevert(ERC5192.ErrNotFound.selector);
     lockedToken.locked(1337);
+
+    vm.expectRevert(ERC5192.ErrNotFound.selector);
+    unlockedToken.locked(1337);
+  }
+
+  function testEnabledSafeTransferFromWithData() public {
+    address to = address(this);
+    uint256 tokenId = 0;
+    unlockedToken.safeMint(to, tokenId);
+
+    bytes memory data;
+    address receiver = address(1);
+    unlockedToken.safeTransferFrom(address(this), receiver, tokenId, data);
+    assertEq(unlockedToken.ownerOf(tokenId), receiver);
+  }
+
+  function testEnabledSafeTransferFrom() public {
+    address to = address(this);
+    uint256 tokenId = 0;
+    unlockedToken.safeMint(to, tokenId);
+
+    address receiver = address(1);
+    unlockedToken.safeTransferFrom(address(this), receiver, tokenId);
+    assertEq(unlockedToken.ownerOf(tokenId), receiver);
   }
 
   function testBlockedSafeTransferFrom() public {
-    address from = address(0);
     address to = address(this);
     uint256 tokenId = 0;
     lockedToken.safeMint(to, tokenId);
@@ -58,8 +90,17 @@ contract ERC5192Test is Test, ERC721Holder {
     lockedToken.safeTransferFrom(address(this), address(1), tokenId);
   }
 
+  function testEnabledTransferFrom() public {
+    address to = address(this);
+    uint256 tokenId = 0;
+    unlockedToken.safeMint(to, tokenId);
+
+    address receiver = address(1);
+    unlockedToken.transferFrom(address(this), receiver, tokenId);
+    assertEq(unlockedToken.ownerOf(tokenId), receiver);
+  }
+
   function testBlockedTransferFrom() public {
-    address from = address(0);
     address to = address(this);
     uint256 tokenId = 0;
     lockedToken.safeMint(to, tokenId);
@@ -68,14 +109,33 @@ contract ERC5192Test is Test, ERC721Holder {
     lockedToken.transferFrom(address(this), address(1), tokenId);
   }
 
+  function testEnabledApprove() public {
+    address to = address(this);
+    uint256 tokenId = 0;
+    unlockedToken.safeMint(to, tokenId);
+
+    address receiver = address(1);
+    unlockedToken.approve(receiver, tokenId);
+    assertEq(unlockedToken.getApproved(tokenId), receiver);
+  }
+
   function testBlockedApprove() public {
-    address from = address(0);
     address to = address(this);
     uint256 tokenId = 0;
     lockedToken.safeMint(to, tokenId);
 
     vm.expectRevert(ERC5192.ErrLocked.selector);
     lockedToken.approve(address(1), tokenId);
+  }
+
+  function testEnabledSetApproveForAll() public {
+    address to = address(this);
+    uint256 tokenId = 0;
+    unlockedToken.safeMint(to, tokenId);
+
+    address operator = address(1);
+    unlockedToken.setApprovalForAll(operator, true);
+    assertEq(unlockedToken.isApprovedForAll(to, operator), true);
   }
 
   function testBlockedSetApprovalForAll() public {

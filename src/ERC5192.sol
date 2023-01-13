@@ -18,7 +18,7 @@ abstract contract ERC5192 is ERC721 {
   }
 
   modifier checkLock() {
-    revert ErrLocked();
+    if (isLocked) revert ErrLocked();
     _;
   }
 
@@ -33,7 +33,7 @@ abstract contract ERC5192 is ERC721 {
     uint256 tokenId,
     bytes memory data
   ) public override checkLock {
-    safeTransferFrom(from, to, tokenId, data);
+    super.safeTransferFrom(from, to, tokenId, data);
   }
 
   function safeTransferFrom(address from, address to, uint256 tokenId)
@@ -41,7 +41,7 @@ abstract contract ERC5192 is ERC721 {
     override
     checkLock
   {
-    safeTransferFrom(from, to, tokenId);
+    super.safeTransferFrom(from, to, tokenId);
   }
 
   function transferFrom(address from, address to, uint256 tokenId)
@@ -49,11 +49,11 @@ abstract contract ERC5192 is ERC721 {
     override
     checkLock
   {
-    transferFrom(from, to, tokenId);
+    super.transferFrom(from, to, tokenId);
   }
 
   function approve(address approved, uint256 tokenId) public override checkLock {
-    approve(approved, tokenId);
+    super.approve(approved, tokenId);
   }
 
   function setApprovalForAll(address operator, bool approved)
@@ -61,7 +61,7 @@ abstract contract ERC5192 is ERC721 {
     override
     checkLock
   {
-    setApprovalForAll(operator, approved);
+    super.setApprovalForAll(operator, approved);
   }
 
   function supportsInterface(bytes4 interfaceId)
