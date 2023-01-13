@@ -1,0 +1,25 @@
+{
+	"name": "erc5192",
+	"version": "0.0.1",
+	"description": "Reference implementation of ERC5192",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/attestate/ERC5192.git"
+	},
+	"files": ["/src/ERC5192.sol", "/src/IERC5192.sol"],
+	"keywords": [
+		"non-transferrable",
+		"soulbound",
+		"account-bound",
+		"token",
+		"locked",
+		"nft",
+		"erc721"
+	],
+	"author": "Tim Daubenschütz <tim@daubenschuetz.de> (https://proofinprogress.com/)",
+	"license": "GPL-3.0-only",
+	"bugs": {
+		"url": "https://github.com/attestate/ERC5192/issues"
+	},
+	"homepage": "https://github.com/attestate/ERC5192#readme"
+}
