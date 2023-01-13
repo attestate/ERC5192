@@ -5,7 +5,7 @@ import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import {IERC5192} from "./IERC5192.sol";
 
-abstract contract ERC5192 is ERC721 {
+abstract contract ERC5192 is ERC721, IERC5192 {
   bool private isLocked;
 
   error ErrLocked();
